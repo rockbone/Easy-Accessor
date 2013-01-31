@@ -115,8 +115,8 @@ sub set_accessor_class_selected {
     {
         no strict 'refs';
         for (@classes){
-            if (!%{"$_\::"}){  # perhaps no symbole in the package
-                carp "perhaps class '$_' has no entry in that symbole table";
+            if (!%{"$_\::"}){ 
+                carp "perhaps class '$_' has no entry in that symbole table or class not exist";
             }
         }
         for my $name(@names){
