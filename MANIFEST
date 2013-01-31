@@ -1,0 +1,6 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Easy-Accessor.t
+lib/Easy/Accessor.pm
