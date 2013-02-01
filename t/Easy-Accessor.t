@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More tests => 15;
+#use Test::More "no_plan";
 BEGIN { use_ok('Easy::Accessor') };
 
 {
@@ -19,17 +20,18 @@ BEGIN { use_ok('Easy::Accessor') };
         class   => [ __PACKAGE__,"Test2"],
         name    => [ qw/four/]
     );
-
+    
     sub test1 {
-        __PACKAGE__->one(1);
-        main::is(__PACKAGE__->one ,1,"set_accessor ok from ".__PACKAGE__);
-        __PACKAGE__->two(2);
-        eval{__PACKAGE__->two(22)};
-        main::is(__PACKAGE__->two ,2,"set_accessor_readonly ok from ".__PACKAGE__);
-        __PACKAGE__->three(3);
-        main::is(__PACKAGE__->three ,3,"set_accessor_class_only ok from ".__PACKAGE__);
-        __PACKAGE__->four(4);
-        main::is(__PACKAGE__->four ,4,"set_accessor_class_selected ok from ".__PACKAGE__);
+        my $t1 = shift;
+        $t1->one(1);
+        main::is($t1->one ,1,"set_accessor ok from ".__PACKAGE__);
+        $t1->two(2);
+        eval{$t1->two(22)};
+        main::is($t1->two ,2,"set_accessor_readonly ok from ".__PACKAGE__);
+        $t1->three(3);
+        main::is($t1->three ,3,"set_accessor_class_only ok from ".__PACKAGE__);
+        $t1->four(4);
+        main::is($t1->four ,4,"set_accessor_class_selected ok from ".__PACKAGE__);
     }
 }
 
@@ -53,6 +55,7 @@ BEGIN { use_ok('Easy::Accessor') };
 }
 
 my $m = Test2->new;
+use Data::Dumper;
 
 $m->test1;
 $m->test2;

@@ -36,8 +36,8 @@ sub set_accessor {
         for my $name(@names){
             *{"$set_class\::$name"} = sub {
                 my $self = shift;
-                return $box->{$set_class}{$name} if !@_;
-                $box->{$set_class}{$name} = shift;
+                return $box->{$self}{$name} if !@_;
+                $box->{$self}{$name} = shift;
                 return $self;
             };
         }
@@ -60,9 +60,9 @@ sub set_accessor_read_only {
         for my $name(@names){
             *{"$set_class\::$name"} = sub {
                 my $self = shift;
-                return $box->{$set_class}{$name} if !@_;
-                croak "Accessor restriction!\nReadonly.Can't set again." if $box->{$set_class}{$name};
-                $box->{$set_class}{$name} = shift;
+                return $box->{$self}{$name} if !@_;
+                croak "Accessor restriction!\nReadonly.Can't set again." if $box->{$self}{$name};
+                $box->{$self}{$name} = shift;
                 return $self;
             };
         }
@@ -87,8 +87,8 @@ sub set_accessor_class_only {
             *{"$set_class\::$name"} = sub {
                 croak "Accessor restriction!\nYou can call '$name' from just only $set_class package" if caller ne $set_class;
                 my $self = shift;
-                return $box->{$set_class}{$name} if !@_;
-                $box->{$set_class}{$name} = shift;
+                return $box->{$self}{$name} if !@_;
+                $box->{$self}{$name} = shift;
                 return $self;
             };
         }
@@ -115,16 +115,16 @@ sub set_accessor_class_selected {
     {
         no strict 'refs';
         for (@classes){
-            if (!%{"$_\::"}){ 
-                carp "perhaps class '$_' has no entry in that symbole table or class not exist";
+            if (!%{"$_\::"}){  # perhaps no symbole in the package
+                carp "perhaps class '$_' has no entry in that symbole table";
             }
         }
         for my $name(@names){
             *{"$set_class\::$name"} = sub {
                 croak "Accessor restriction!\nYou can call '$name' only from [@classes] package" if !grep{ caller eq $_ }@classes;
                 my $self = shift;
-                return $box->{$set_class}{$name} if !@_;
-                $box->{$set_class}{$name} = shift;
+                return $box->{$self}{$name} if !@_;
+                $box->{$self}{$name} = shift;
                 return $self;
             };
         }
