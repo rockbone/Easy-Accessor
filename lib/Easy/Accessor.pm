@@ -12,7 +12,7 @@ use base "Exporter";
 
 our $VERSION = '0.01';
 our @EXPORT = qw/set_accessor/;
-our @EXPORT_OK = qw/set_accessor_read_only set_accessor_class_only set_accessor_class_selected/;
+our @EXPORT_OK = qw/set_accessor_read_only set_accessor_class_only set_accessor_class_selected set_accessor_hash_ref/;
 our %EXPORT_TAGS = (
     all     => [ @EXPORT,@EXPORT_OK ]
 );
@@ -130,4 +130,70 @@ sub set_accessor_class_selected {
         }
     }
 }
+
+=head2 set_accessor_heash_ref
+
+=head4 set accessor of your class hash reference
+ 
+ package Your::Class;
+ set_accessor_hash_ref(\%hash);
+ 
+=cut
+sub set_accessor_hash_ref {
+    my $hash_ref = shift;
+    my $set_class = caller;
+    my $smbl = _detect_symbole($hash_ref,$set_class)
+        or croak "Set only hash ref!";
+    {
+        no strict 'refs';
+        my $new_class = "$set_class\::$smbl";
+        *{"$set_class\::$smbl"} = sub {
+            return bless $hash_ref,$new_class;
+         };
+         _expand_hash_ref($hash_ref,$new_class);
+    }
+}
+
+
+sub _detect_symbole {
+    my ($ref,$class) = @_;
+    no strict 'refs';
+    my $smbl_name;
+    for my $smbl(keys %{"$class\::"}){
+        if ( defined \%{"$class\::$smbl"} && \%{"$class\::$smbl"} eq $ref 
+          or defined ${"$class\::$smbl"}  &&  ${"$class\::$smbl"} eq $ref){
+            $smbl_name = $smbl;
+        }
+    }
+    return $smbl_name || undef;
+}
+
+sub _expand_hash_ref {
+    my ($ref,$class) = @_;
+    for my $key(keys %{$ref}){
+        no strict 'refs';
+        if (ref $ref->{$key} eq 'HASH'){
+            my $new_class = "$class\::$key";
+            *{"$class\::$key"} = sub {
+                return bless $ref->{$key},$new_class;
+            };
+            _expand_hash_ref($ref->{$key},$new_class);
+        }
+        else{
+            *{"$class\::$key"} = sub {
+                my $self = shift;
+                return $box->{$self}{$key} || $ref->{$key} if !@_;
+                $box->{$self}{$key} = shift;
+                return $self;
+            };
+        }
+    }
+}
 1;
+
+
+
+
+
+
+
