@@ -170,8 +170,8 @@ sub _detect_symbole {
 
 sub _expand_hash_ref {
     my ($ref,$class) = @_;
+    no strict 'refs';
     for my $key(keys %{$ref}){
-        no strict 'refs';
         if (ref $ref->{$key} eq 'HASH'){
             my $new_class = "$class\::$key";
             *{"$class\::$key"} = sub {
@@ -188,6 +188,24 @@ sub _expand_hash_ref {
             };
         }
     }
+    *{"$class\::AUTOLOAD"} = sub {
+        my $self = shift;
+        my $arg = shift;
+        my %self_box = %$self;                  # avoid deep recursion
+        our $AUTOLOAD;
+        my ($call) = $AUTOLOAD =~ /::([\w_]+)$/; 
+        $self->{$call} = $self_box{$call} = $arg || {};
+        delete $self->{DESTROY};
+        *{"$class\::$call"} = sub {
+            my $self = shift;
+            return $box->{$self}{$call} || $self->{$call} if !@_;
+            $box->{$self}{$call} = shift;
+            return $self;
+        };
+        return $self if $arg;                   # case setter
+        return bless $self_box{$call},$class;   # bless copy so avoid deep recursion
+                                                # hand over follow subs
+    };
 }
 1;
 
