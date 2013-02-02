@@ -12,13 +12,12 @@ use Test::More "no_plan";
         return bless {},+shift;
     }
    
-    our %hash = (
+    our $hash = {
         test1  => 1,
         test2  => 2
-    );
-    set_accessor_hash_ref(\%hash);
-    #undef $hash;
-    %hash = ();
+    };
+    set_accessor_hash_ref($hash);
+    undef $hash;
     
     sub test1 {
         my $t1 = shift;
