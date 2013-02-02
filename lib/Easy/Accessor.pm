@@ -6,6 +6,62 @@ package Easy::Accessor;
 
 =cut
 
+=head1 SYNOPSYS
+    
+    {
+        package Your::Class1;
+
+        use Easy::Accessor;                     # import only 'set_accessor'
+        use Easy::Accessor qw/:all/;            # import all functions below
+        
+        sub new {
+            ......
+            return bless...;
+        }
+
+        set_accessor(qw/foo/);
+        set_accessor_read_only(qw/bar/);        
+        set_accessor_class_only(qw/baz/);
+        set_accessor_class_selected(
+            class => 'Your::Class2',            # possible as [class1,class2,...]
+            name  => 'class2_foo'               # possible as [qw/foo bar baz/]
+        );
+
+        our $result = {                         # it must be 'my' and '$' so I can't look into scratchpad of lexical var yet.
+           foo => 100,
+           bar => {
+               baz => 20
+           }
+        };
+        set_accessor_hash_ref($result);
+        undef $hash_ref;                        # undef to capsule it self
+    }
+
+    {
+        package Your::Class2;
+
+        ......
+    }
+
+    {
+        package main;
+        
+        my $x = Your::Class->new;
+        
+        $x->foo("hello");
+        print $x;                               # hello
+        
+        $x->bar(1);                             # once you set
+        $x->bar(2);                             # die read only
+        
+        $x->baz('from_main');                   # die class only
+
+        $x->class2_foo('from_main');            # die access only selected class
+
+        print $x->result->foo;                  # 100
+        $x->bar->boo(80);                       # set like hash
+    }
+=cut
 use strict;
 use Carp;
 use base "Exporter";
@@ -24,7 +80,6 @@ our $box = {};
 
 =head4 set accessor of your class object
  
- package Your::Class;
  set_accessor(qw/foo bar baz/);
  
 =cut
@@ -48,7 +103,6 @@ sub set_accessor {
 
 =head4 set readonly accessor of your class object
  
- package Your::Class;
  set_accessor_read_only(qw/foo bar baz/);
  
 =cut
@@ -73,7 +127,6 @@ sub set_accessor_read_only {
 
 =head4 set accessor call from just only the class it set
 
- package Your::Class;
  set_accessor_class_only(qw/foo bar baz/);
  
 =cut
@@ -99,7 +152,6 @@ sub set_accessor_class_only {
 
 =head4 set accessor call from only a class or classes selected
 
- package Your::Class;
  set_accessor_class_selected(
      class => 'main',           # possible as [class1,class2,...]
      name  => 'foo'             # possible as [qw/foo bar baz/]
@@ -135,8 +187,16 @@ sub set_accessor_class_selected {
 
 =head4 set accessor of your class hash reference
  
- package Your::Class;
- set_accessor_hash_ref(\%hash);
+ our $hash_ref = {                  # it must be 'my' and '$' so I can't look into scratchpad of lexical var yet.
+    foo => 1,
+    bar => {
+        baz => 2
+    }
+ };
+ set_accessor_hash_ref($hash_ref);
+ undef $hash_ref;                   # undef to capsule it self
+ 
+ you can write... $self->bar->baz   # usually, $hash_ref->{bar}{baz} or $self->getter->{bar}{baz}
  
 =cut
 sub set_accessor_hash_ref {
