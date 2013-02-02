@@ -49,7 +49,7 @@ package Easy::Accessor;
         my $x = Your::Class->new;
         
         $x->foo("hello");
-        print $x;                               # hello
+        print $x->foo;                               # hello
         
         $x->bar(1);                             # once you set
         $x->bar(2);                             # die read only
