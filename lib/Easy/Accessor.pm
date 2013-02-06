@@ -27,7 +27,7 @@ package Easy::Accessor;
             name  => 'class2_foo'               # possible as [qw/foo bar baz/]
         );
 
-        our $result = {                         # it must be 'my' and '$' so I can't look into scratchpad of lexical var yet.
+        our $result = {                         # it must be 'our' and '$' so I can't look into scratchpad of lexical var yet.
            foo => 100,
            bar => {
                baz => 20
@@ -187,7 +187,7 @@ sub set_accessor_class_selected {
 
 =head4 set accessor of your class hash reference
  
- our $hash_ref = {                  # it must be 'my' and '$' so I can't look into scratchpad of lexical var yet.
+ our $hash_ref = {                  # it must be 'our' and '$' so I can't look into scratchpad of lexical var yet.
     foo => 1,
     bar => {
         baz => 2
